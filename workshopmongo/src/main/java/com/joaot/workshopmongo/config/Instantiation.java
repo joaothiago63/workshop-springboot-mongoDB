@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.joaot.workshopmongo.domain.Post;
 import com.joaot.workshopmongo.domain.User;
+import com.joaot.workshopmongo.dto.AuthorDto;
+import com.joaot.workshopmongo.dto.CommentDto;
 import com.joaot.workshopmongo.repository.PostRepository;
 import com.joaot.workshopmongo.repository.UserRepository;
 
@@ -17,29 +19,46 @@ import com.joaot.workshopmongo.repository.UserRepository;
 public class Instantiation implements CommandLineRunner{
 	
 	@Autowired
-	UserRepository userrepository;
+	private UserRepository userReposiroty;
 	
 	@Autowired
-	PostRepository postRepository;
-
+	private PostRepository postReposiroty;
+	
 	@Override
 	public void run(String... args) throws Exception {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		
-		userrepository.deleteAll();
-		postRepository.deleteAll();
+		userReposiroty.deleteAll();
+		postReposiroty.deleteAll();
 		
-		User maria = new User(null,"Maria","Maria@gmail.com");
-		User alex = new User(null,"Alex","Alex@gmail.com");
-		User bob = new User(null,"Bob","Bob@gmail.com");
+		User maria = new User(null, "Maria Brown", "maria@gmail.com");
+		User alex = new User(null, "Alex Green", "alex@gmail.com");
+		User bob = new User(null, "Bob Grey", "bob@gmail.com");
 		
-		userrepository.saveAll(Arrays.asList(maria,alex,bob));
+		userReposiroty.saveAll(Arrays.asList(maria, alex, bob));
+
+		Post post1 = new Post(null, sdf.parse("21/03/2018"), "Partiu viagem", "Vou viajar para São Paulo. Abraços!", new AuthorDto(maria));
+		Post post2 = new Post(null, sdf.parse("23/03/2018"), "Bom dia", "Acordei feliz hoje!", new AuthorDto(maria));
+       
+		CommentDto c1 = new CommentDto("Parabéns pela viagem", sdf.parse("21/10/2018"),new AuthorDto(alex));
+		CommentDto c2 = new CommentDto("Chama mano", sdf.parse("21/10/2018"),new AuthorDto(bob));
+		CommentDto c3 = new CommentDto("Bom dia, Linda",sdf.parse("23/03/2018"),new AuthorDto(bob));
+	    postReposiroty.saveAll(Arrays.asList(post1, post2));
+
 		
-		Post post1 = new Post(null, sdf.parse("20/10/2001"), "Birthday", "Faço 22 Hoje", maria);
+		post1.getComments().addAll(Arrays.asList(c1,c2));
+		post2.getComments().addAll(Arrays.asList(c3));
 		
-		postRepository.save(post1);
+		
+		postReposiroty.saveAll(Arrays.asList(post1, post2));
+		
+		maria.getPosts().addAll(Arrays.asList(post1, post2));
+		userReposiroty.save(maria);
+	}
+		
+	
 	}
 
-}
+
